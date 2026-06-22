@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek, isSameMonth, isToday, isSameDay, parseISO } from 'date-fns';
 import { ko } from 'date-fns/locale/ko';
 import { Event, Todo } from '../types';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 interface Props {
   events: Event[];
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function CalendarView({ events, todos, onDayClick, onEventClick }: Props) {
+  const isMobile = useIsMobile();
   const [current, setCurrent] = useState(new Date());
 
   const monthStart = startOfMonth(current);
@@ -31,9 +33,9 @@ export default function CalendarView({ events, todos, onDayClick, onEventClick }
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
+      <div style={{ ...styles.header, padding: isMobile ? '14px 16px' : '20px 24px' }}>
         <button style={styles.navBtn} onClick={prev}>‹</button>
-        <h2 style={styles.month}>{format(current, 'yyyy년 M월', { locale: ko })}</h2>
+        <h2 style={{ ...styles.month, fontSize: isMobile ? 16 : 20 }}>{format(current, 'yyyy년 M월', { locale: ko })}</h2>
         <button style={styles.navBtn} onClick={next}>›</button>
       </div>
 
@@ -56,6 +58,8 @@ export default function CalendarView({ events, todos, onDayClick, onEventClick }
               key={dateStr}
               style={{
                 ...styles.cell,
+                minHeight: isMobile ? 58 : 90,
+                padding: isMobile ? '4px 2px' : '6px 4px',
                 opacity: isCurrentMonth ? 1 : 0.3,
                 background: today ? '#eff6ff' : '#fff',
               }}
@@ -63,25 +67,43 @@ export default function CalendarView({ events, todos, onDayClick, onEventClick }
             >
               <div style={{
                 ...styles.dayNum,
+                width: isMobile ? 22 : 26,
+                height: isMobile ? 22 : 26,
+                fontSize: isMobile ? 11 : 13,
                 background: today ? '#4f46e5' : 'transparent',
                 color: today ? '#fff' : day.getDay() === 0 ? '#ef4444' : day.getDay() === 6 ? '#3b82f6' : '#1a1a2e',
               }}>
                 {format(day, 'd')}
               </div>
               <div style={styles.dots}>
-                {dayEvents.slice(0, 3).map(e => (
-                  <div key={e.id} style={{ ...styles.eventChip, background: e.color }}
-                    onClick={(ev) => { ev.stopPropagation(); onEventClick(e); }}>
-                    {e.title}
+                {isMobile ? (
+                  /* 모바일: 색상 점으로만 표시 */
+                  <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+                    {dayEvents.slice(0, 3).map(e => (
+                      <div key={e.id} style={{ width: 6, height: 6, borderRadius: '50%', background: e.color, flexShrink: 0 }}
+                        onClick={(ev) => { ev.stopPropagation(); onEventClick(e); }} />
+                    ))}
+                    {dayTodos.slice(0, 2).map(t => (
+                      <div key={t.id} style={{ width: 6, height: 6, borderRadius: '50%', background: t.completed ? '#10b981' : '#f59e0b', flexShrink: 0 }} />
+                    ))}
                   </div>
-                ))}
-                {dayTodos.slice(0, 2).map(t => (
-                  <div key={t.id} style={{ ...styles.eventChip, background: t.completed ? '#d1fae5' : '#fef3c7', color: '#1a1a2e' }}>
-                    {t.completed ? '✓ ' : '• '}{t.title}
-                  </div>
-                ))}
-                {(dayEvents.length + dayTodos.length) > 4 && (
-                  <div style={styles.more}>+{dayEvents.length + dayTodos.length - 4}개</div>
+                ) : (
+                  <>
+                    {dayEvents.slice(0, 3).map(e => (
+                      <div key={e.id} style={{ ...styles.eventChip, background: e.color }}
+                        onClick={(ev) => { ev.stopPropagation(); onEventClick(e); }}>
+                        {e.title}
+                      </div>
+                    ))}
+                    {dayTodos.slice(0, 2).map(t => (
+                      <div key={t.id} style={{ ...styles.eventChip, background: t.completed ? '#d1fae5' : '#fef3c7', color: '#1a1a2e' }}>
+                        {t.completed ? '✓ ' : '• '}{t.title}
+                      </div>
+                    ))}
+                    {(dayEvents.length + dayTodos.length) > 4 && (
+                      <div style={styles.more}>+{dayEvents.length + dayTodos.length - 4}개</div>
+                    )}
+                  </>
                 )}
               </div>
             </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Todo, Category } from '../types';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 interface Props {
   onSave: (todo: Omit<Todo, 'id' | 'createdAt'>) => void;
@@ -13,6 +14,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
 };
 
 export default function TodoModal({ onSave, onClose, initial }: Props) {
+  const isMobile = useIsMobile();
   const [title, setTitle] = useState(initial?.title || '');
   const [description, setDescription] = useState(initial?.description || '');
   const [important, setImportant] = useState(initial?.important ?? true);
@@ -38,8 +40,9 @@ export default function TodoModal({ onSave, onClose, initial }: Props) {
   };
 
   return (
-    <div style={s.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div style={s.modal}>
+    <div style={{ ...s.overlay, alignItems: isMobile ? 'flex-end' : 'center' }} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div style={{ ...s.modal, borderRadius: isMobile ? '20px 20px 0 0' : 16, maxWidth: isMobile ? '100%' : 480, paddingBottom: isMobile ? 36 : 28 }}>
+        {isMobile && <div style={s.handle} />}
         <h2 style={s.title}>{initial ? '할 일 수정' : '새 할 일'}</h2>
         <form onSubmit={handleSubmit} style={s.form}>
           <div style={s.field}>
@@ -117,8 +120,9 @@ export default function TodoModal({ onSave, onClose, initial }: Props) {
 }
 
 const s: Record<string, React.CSSProperties> = {
-  overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  modal: { background: '#fff', borderRadius: 16, padding: 28, width: '100%', maxWidth: 480, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', maxHeight: '92vh', overflowY: 'auto' },
+  overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', justifyContent: 'center', zIndex: 1000 },
+  modal: { background: '#fff', padding: 28, width: '100%', boxShadow: '0 -8px 40px rgba(0,0,0,0.18)', maxHeight: '92vh', overflowY: 'auto' },
+  handle: { width: 40, height: 4, borderRadius: 2, background: '#d1d5db', margin: '-8px auto 16px' },
   title: { fontSize: 20, fontWeight: 700, marginBottom: 20, color: '#1a1a2e' },
   form: { display: 'flex', flexDirection: 'column', gap: 16 },
   field: { display: 'flex', flexDirection: 'column', gap: 6 },

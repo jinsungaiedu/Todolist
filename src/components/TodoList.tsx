@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Todo, Category } from '../types';
 import { format, parseISO, isPast } from 'date-fns';
 import { ko } from 'date-fns/locale/ko';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 interface Props {
   todos: Todo[];
@@ -26,6 +27,7 @@ const CATEGORY_EMOJI: Record<Category, string> = {
 };
 
 export default function TodoList({ todos, onToggle, onDelete, onEdit, onMove }: Props) {
+  const isMobile = useIsMobile();
   const [showCompleted, setShowCompleted] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [overQuadrant, setOverQuadrant] = useState<number | null>(null);
@@ -71,7 +73,7 @@ export default function TodoList({ todos, onToggle, onDelete, onEdit, onMove }: 
         <span style={s.hint}>✦ 카드를 드래그해서 칸 이동</span>
       </div>
 
-      <div style={s.matrix}>
+      <div style={{ ...s.matrix, gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
         {QUADRANTS.map(q => {
           const items = active.filter(t => t.urgent === q.urgent && t.important === q.important);
           const isOver = overQuadrant === q.num;
