@@ -194,6 +194,11 @@ function TodoCard({ todo, isDragging, onToggle, onDelete, onEdit, onDragStart, o
         {todo.reminder != null && (
           <span style={s.metaBadge}>🔔 {todo.reminder < 60 ? `${todo.reminder}분` : `${todo.reminder / 60}시간`} 전</span>
         )}
+        {todo.recurring && todo.recurring !== 'none' && (
+          <span style={{ ...s.metaBadge, background: '#eef2ff', color: '#4f46e5', padding: '2px 6px', borderRadius: 10 }}>
+            🔄 {{ daily: '매일', weekly: '매주', monthly: '매월' }[todo.recurring]}
+          </span>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 export type Category = 'work' | 'personal' | 'health' | 'other';
+export type RecurringType = 'none' | 'daily' | 'weekly' | 'monthly';
 
 export type Quadrant = 1 | 2 | 3 | 4;
 // 1: 급하고 중요  2: 급하고 덜 중요
@@ -15,6 +16,7 @@ export interface Todo {
   dueDate?: string;
   dueTime?: string;
   reminder?: number;
+  recurring?: RecurringType;
   createdAt: string;
 }
 
